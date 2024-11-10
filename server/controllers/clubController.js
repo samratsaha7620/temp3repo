@@ -5,27 +5,14 @@ const prisma =  require("../db/index")
 const createClub = async (req, res) => {
   // Extract data from the request body
   const { name, description, coverImage, bannerURL,userId } = req.body;
-  console.log(name,userId,coverImage);
   
   try {
     const newClub = await prisma.Club.create({
       data: {
         name,
         description,
-        coverImage,
-        bannerURL,
-        admins: {
-          create: {
-            userId, // Directly reference `userId`
-            addedAt: new Date(), // Optional
-          },
-        },
-        members: {
-          create: {
-            userId, // Directly reference `userId`
-            joinedAt: new Date(), // Optional
-          },
-        },
+        coverImage:"https://cdn-icons-png.flaticon.com/512/718/718339.png",
+        bannerURL:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTlbs_AUIMl1VzU-tFY8X0dKQ-AJoOEh-wEw&s",
       },
     });
     res.status(201).json({ message: "Club created", club: newClub });

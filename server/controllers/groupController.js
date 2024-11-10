@@ -2,19 +2,30 @@ const prisma = require("../db/index");
 
 // Create a new group
 const createGroup = async (req, res) => {
-  const { name, description, groupURL,userId } = req.body;
+  const { name, description,userId } = req.body;
+  
   try {
     const newGroup = await prisma.Group.create({
       data: {
         name,
         description,
-        groupURL,
-        admins: { create: { userId } }, // Adding the user as an admin by default
-        members: { create: { userId } }, // Adding the user as a member by default
+        groupURL:"https://cdn-icons-png.flaticon.com/512/718/718339.png",
+        admins: {
+          create: {
+            userId: userId,  // Pass the creator's user ID here
+          },
+        },
+        members: {
+          create: {
+            userId: userId,  // Pass the creator's user ID here
+          },
+        },
       },
     });
-    res.status(201).json({ message: "Group created", group: newGroup });
+    res.status(200).json({ message: "Group created", group: newGroup });
   } catch (error) {
+    console.log(error);
+    
     res.status(500).json({ error: "Failed to create group" });
   }
 };
