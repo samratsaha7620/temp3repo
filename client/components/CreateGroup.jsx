@@ -1,15 +1,13 @@
-const axios = require("axios");
+import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "./ui/button"; // Ensure this is the correct path for your button component
 import { Input } from "./ui/input"; // Assuming you have a shadcn Input component
 
-
 export default function CreateGroup() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    groupURL: "" // To store S3 URL after upload
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
@@ -19,63 +17,26 @@ export default function CreateGroup() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleFileChange = async (e) => {
-    const userId  = localStorage.getItem("userID");
-    console.log(userId);
-    
-    const file = e.target.files[0];
-    if (file) {
-      try {
-        // Request presigned URL from your backend
-        const presignedUrlResponse = await axios.post(`http://localhost:3001/api/upload/generate-presigned-url/${userId}`, // Adjusted the URL
-          {
-            fileName: file.name,
-            fileType: file.type,
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const {getSignedURL} = presignedUrlResponse.data;
-        if (getSignedURL) {
-          // Upload file directly to S3
-          await axios.put(getSignedURL,file,{
-            headers:{
-              'Content-Type': file.type,
-            }
-          })
-          const url = new URL(getSignedURL);
-          const myFilePath = `${url.origin}${url.pathname}`;
-
-          // Set S3 URL in formData
-          setFormData({ ...formData, groupURL: myFilePath });
-        } else {
-          console.error("Failed to get presigned URL from server");
-        }
-      } catch (error) {
-        console.error("Error uploading image:", error);
-      }
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
     setIsSubmitting(true);
-    try {
-      const response = await axios.post(`http://localhost:3001/api/groups/group/create`,{...formData,userId:localStorage.getItem("userID")}, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
 
-      const result = await response.data;
-      if (response.ok) {
-        
+    try {
+      const userId = localStorage.getItem("userID");
+      const response = await axios.post(
+        "http://localhost:3001/api/groups/group/create",
+        { ...formData, userId },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        router.push("/groups"); // Redirect to a groups page or wherever appropriate
       } else {
-        alert(result.error || "Failed to create group");
+        alert(response.data.error || "Failed to create group");
       }
     } catch (error) {
       console.error("Error creating group:", error);
@@ -113,15 +74,6 @@ export default function CreateGroup() {
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Upload Group Image</label>
-          <Input
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="block w-full px-4 py-2 border border-gray-300 rounded-md"
-          />
-        </div>
 
         <Button
           type="submit"

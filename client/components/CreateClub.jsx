@@ -66,13 +66,9 @@ export default function CreateClub() {
           },
         }
       );
-
-      const result = await response.data;
-      if (response.ok) {
+      if(response.status === 200){
         alert("club created successfully!");
-        router.push("/clubs");  // Redirect to the groups page
-      } else {
-        alert(result.error || "Failed to create club");
+        router.push("/clubs");
       }
     } catch (error) {
       console.error("Error creating club:", error);
