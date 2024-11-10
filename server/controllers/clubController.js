@@ -14,8 +14,18 @@ const createClub = async (req, res) => {
         coverImage:"https://cdn-icons-png.flaticon.com/512/718/718339.png",
         bannerURL:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRTlbs_AUIMl1VzU-tFY8X0dKQ-AJoOEh-wEw&s",
       },
+      admins: {
+        create: {
+          userId: userId,  // Pass the creator's user ID here
+        },
+      },
+      members: {
+        create: {
+          userId: userId,  // Pass the creator's user ID here
+        },
+      },
     });
-    res.status(201).json({ message: "Club created", club: newClub });
+    res.status(200).json({ message: "Club created", club: newClub });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: "Failed to create club" });
